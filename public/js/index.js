@@ -9,16 +9,18 @@ socket.on('disconnect', () => {
 });
 
 socket.on('newMessage', (message) => {
+    var createdTime = moment(message.createdAt).format('h:mm a');
     var li = jQuery('<li></li>');
-    li.text(`${message.from}: ${message.text}`);
+    li.text(`${message.from} ${createdTime}: ${message.text}`);
     jQuery('#messages').append(li);
 });
 
 socket.on('newLocationMessage', (message) => {
+    var createdTime = moment(message.createdAt).format('h:mm a');
     var li = jQuery('<li></li>');
     var a = jQuery('<a target="_blank">My current Location</a>');
     a.attr('href', message.url);
-    li.text(`message from: ${message.from}`);
+    li.text(`${message.from} ${createdTime}: `);
     li.append(a);
     jQuery('#messages').append(li);
 });
@@ -27,11 +29,12 @@ socket.on('newLocationMessage', (message) => {
 
 jQuery('#message-form').on('submit', function(e){
     e.preventDefault();
+    var messageTextbox = jQuery('[name=message]');
     socket.emit('createMessage', {
         from: 'User',
-        text: jQuery('[name=message]').val()
-    } , function (data) {
-        console.log('Acknowledgement: ', data);
+        text: messageTextbox.val()
+    } , function () {
+        messageTextbox.val('');
     });
 });
 
@@ -40,16 +43,17 @@ locationButton.on('click', function() {
     if (!navigator.geolocation) {
         return alert('Browser does not support geo');
     }
-
+    locationButton.attr('disabled', 'disabled').text('Sending location...');
     navigator.geolocation.getCurrentPosition(function(position) {
         socket.emit('createLocationMessage', {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
-        }, function (data) {
-            console.log('Acknowledgement: ', data);
+        }, function () {
+            locationButton.removeAttr('disabled').text('Send location');
         });
     }, function () {
-        alert('Getting geo failed...')
+        locationButton.removeAttr('disabled').text('Send location');
+        alert('Getting geo failed...');
     });
 });
 
