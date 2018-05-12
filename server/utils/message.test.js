@@ -7,8 +7,8 @@ describe('generate message', () => {
         var from = 'me';
         var text = 'text';
         var newMsg = generateMessage(from, text);
-        expect(newMsg.from).toBe('me');
-        expect(newMsg.text).toBe('text');
+        expect(newMsg.from).toBe(from);
+        expect(newMsg.text).toBe(text);
         expect(typeof newMsg.createdAt).toBe('number');
     });
 });
